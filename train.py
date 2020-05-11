@@ -14,8 +14,8 @@ from yolo3.utils import get_random_data
 
 
 def _main():
-    annotation_path = '/Users/philipp/Git/master/pbp-recommendation/tracking/data/voc/2007/annotations.txt'
-    log_dir = 'logs/000/'
+    annotation_path = '/Users/philipp/Git/master/pbp-recommendation/SHARE/data_tracking/voc/2007/annotations.txt'
+    log_dir = '/Users/philipp/Git/master/pbp-recommendation/SHARE/data_tracking/model/'
     classes_path = 'model_data/voc_classes.txt'
     anchors_path = 'model_data/yolo_anchors.txt'
     class_names = get_classes(classes_path)
@@ -58,7 +58,8 @@ def _main():
         batch_size = 32
         print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
         model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
-                            steps_per_epoch=max(1, num_train // batch_size),
+                            # todo - remove - steps_per_epoch=max(1, num_train // batch_size),
+                            steps_per_epoch=10,
                             validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors,
                                                                    num_classes),
                             validation_steps=max(1, num_val // batch_size),
@@ -79,14 +80,16 @@ def _main():
         batch_size = 32  # note that more GPU memory is required after unfreezing the body
         print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
         model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
-                            steps_per_epoch=max(1, num_train // batch_size),
+                            # # todo - remove - steps_per_epoch=max(1, num_train // batch_size),
+                            steps_per_epoch=10,
                             validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors,
                                                                    num_classes),
                             validation_steps=max(1, num_val // batch_size),
-                            epochs=100,
-                            initial_epoch=50,
+                            epochs=1,
+                            initial_epoch=1,
                             callbacks=[logging, checkpoint, reduce_lr, early_stopping])
         model.save_weights(log_dir + 'trained_weights_final.h5')
+        model.save(log_dir + 'model_final.h5')
 
     # Further training if needed.
 
@@ -170,7 +173,9 @@ def create_tiny_model(input_shape, anchors, num_classes, load_pretrained=True, f
 
 
 def data_generator(annotation_lines, batch_size, input_shape, anchors, num_classes):
-    '''data generator for fit_generator'''
+    '''
+        data generator for fit_generator
+        '''
     n = len(annotation_lines)
     i = 0
     while True:
@@ -191,7 +196,8 @@ def data_generator(annotation_lines, batch_size, input_shape, anchors, num_class
 
 def data_generator_wrapper(annotation_lines, batch_size, input_shape, anchors, num_classes):
     n = len(annotation_lines)
-    if n == 0 or batch_size <= 0: return None
+    if n == 0 or batch_size <= 0:
+        return None
     return data_generator(annotation_lines, batch_size, input_shape, anchors, num_classes)
 
 

@@ -65,4 +65,4 @@ class VocConverter(object):
 
 
 if __name__ == '__main__':
-    VocConverter("/Users/philipp/Git/master/pbp-recommendation/tracking/data/voc", True).convert()
+    VocConverter("/Users/philipp/Git/master/pbp-recommendation/SHARE/data_tracking/own", True).convert()
